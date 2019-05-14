@@ -1,4 +1,4 @@
-import botFactory from './bots';
+const botFactory = require('./bots');
 
 (async () => {
     const bots = await botFactory.getBots();

@@ -1,19 +1,17 @@
-import IBot from './IBot';
-import LearnViral from './LearnViral';
-import BrowserService from '../services/BrowserService';
+const LearnViral = require('./LearnViral');
+const BrowserService = require('../services/BrowserService');
 
-
-export default {
-    getBots(): Promise<IBot[]> {
+module.exports = {
+    getBots() {
         return new Promise((resolve, reject) => {
             const browser = new BrowserService();
             browser.open().then(() => {
-                const bots: IBot[] = [
+                const bots = [
                     new LearnViral(browser)
                 ];
                 resolve(bots);
             })
-            .catch(reject);
+                .catch(reject);
         });
     }
 };

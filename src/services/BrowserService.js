@@ -1,15 +1,18 @@
-import puppeteer from 'puppeteer';
+const puppeteer = require('puppeteer');
+const randomUA = require('modern-random-ua');
+const path = require('path');
 
-export default class BrowserService {
-    private browser: any = null;
-
+module.exports = class BrowserService {
     constructor() {
+        this.browser = null;
     }
-
     
     open() {
         return new Promise((resolve, reject) => {
-            puppeteer.launch()
+            puppeteer.launch({
+                headless: true,
+                userDataDir: path.resolve(__dirname, '..', '..', 'userdata')
+            })
             .then(browser => {
                 this.browser = browser;
                 resolve(browser);
@@ -18,10 +21,12 @@ export default class BrowserService {
         });
     }
 
-    getHtml(url: String) {
+    getHtml(url) {
         return new Promise(async (resolve, reject) => {
             try {
                 const page = await this.browser.newPage();
+                const userAgent = randomUA.generate();
+                await page.setUserAgent(userAgent);
                 await page.goto(url);
                 const html = await page.evaluate(() => document.body.innerHTML);
                 page.close();
