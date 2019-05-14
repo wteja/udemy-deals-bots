@@ -1,0 +1,26 @@
+{
+  "name": "udemy-deals-api",
+  "version": "1.0.0",
+  "description": "Udemy Deals API",
+  "main": "src/index.js",
+  "repository": "https://github.com/wteja/udemy-deals-api.git",
+  "author": "Weerayut Teja <teja.weerayut@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "tsc && node dist/index.js",
+    "serve": "ts-node-dev --respawn --transpileOnly ./src/index.ts",
+    "tsc": "tsc"
+  },
+  "devDependencies": {
+    "dotenv": "^8.0.0",
+    "ts-node-dev": "^1.0.0-pre.39",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "@types/puppeteer": "^1.12.4",
+    "cheerio": "^1.0.0-rc.3",
+    "puppeteer": "^1.16.0",
+    "superagent": "^5.0.5"
+  }
+}
