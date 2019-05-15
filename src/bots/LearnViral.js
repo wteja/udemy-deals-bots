@@ -15,27 +15,27 @@ module.exports = class LearnViral {
 
     start() {
         return new Promise(async (resolve, reject) => {
-            // while(this.working) {
-            //     const pageUrl = this.page > 1 ? this.baseUrl + `page/${this.page}/` : this.baseUrl;
-            //     const pageInfo = await this.getCourseListPageInfo(pageUrl);
+            while (this.working) {
+                const pageUrl = this.page > 1 ? this.baseUrl + `page/${this.page}/` : this.baseUrl;
+                const pageInfo = await this.getCourseListPageInfo(pageUrl);
 
-            //     await timer.randomDelay();
+                await timer.randomDelay();
 
-            //     const courses = await this.getAllCoursesByLinks(pageInfo.links);
+                const courses = await this.getAllCoursesByLinks(pageInfo.links);
+                courses.forEach(async course => {
+                    const isExists = await this.repo.isUrlExists(course.url);
+                    if (!isExists) {
+                        await this.repo.add(course);
+                    }
+                })
 
-            //     if(pageInfo.hasNextPage) {
-            //         this.page++;
-            //     } else {
-            //         this.page = 1;
-            //     }
-            //     await timer.randomDelay(10, 30);
-            // }
-
-            const course = await this.getCourseByLink("https://udemycoupon.learnviral.com/coupon/essentials-of-non-disclosure-agreements-ndas/");
-            const isExists = await this.repo.isUrlExists(course.url);
-            if(!isExists) {
-                const result = await this.repo.add(course);
-                console.log(result);
+                if (pageInfo.hasNextPage) {
+                    this.page++;
+                    await timer.randomDelay(5, 10);
+                } else {
+                    this.page = 1;
+                    await timer.randomDelay(60);
+                }
             }
 
             resolve();
@@ -79,8 +79,8 @@ module.exports = class LearnViral {
                 return this.getCourseByLink(link);
             });
             Promise.all(promises)
-                .then(results => {
-                    console.log(results);
+                .then(result => {
+                    resolve(result);
                 })
                 .catch(reject);
         });

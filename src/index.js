@@ -14,7 +14,10 @@ mediator.on('db.ready', db => {
         })
 })
 
-mediator.on('db.error', err => console.log(err));
+mediator.on('db.error', err => {
+    console.log(err)
+    process.exit(1)
+});
 
 config.db.connect(config.dbSettings, mediator);
 

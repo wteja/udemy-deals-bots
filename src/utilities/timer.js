@@ -1,6 +1,6 @@
 const delay = time => {
     return new Promise(resolve => {
-        setTimeout(() => resolve(), time);
+        setTimeout(() => resolve(), time * 1000);
     });
 };
 
