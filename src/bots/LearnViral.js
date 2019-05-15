@@ -1,10 +1,12 @@
 const cheerio = require('cheerio');
 const htmlToText = require('html-to-text');
 const timer = require('../utilities/timer');
+const courseHelper = require('../utilities/course');
 
 module.exports = class LearnViral {
 
-    constructor(browser) {
+    constructor(repo, browser) {
+        this.repo = repo;
         this.browser = browser;
         this.baseUrl = `https://udemycoupon.learnviral.com/coupon-category/free100-discount/`;
         this.page = 1;
@@ -30,16 +32,11 @@ module.exports = class LearnViral {
             // }
 
             const course = await this.getCourseByLink("https://udemycoupon.learnviral.com/coupon/essentials-of-non-disclosure-agreements-ndas/");
-            console.log(course);
-
-            // const test [{
-            //     title:
-            //     'The Complete Oracle SQL Course: Beginner to Advanced!',
-            //     description: 'May 12, 2019 // Duration: 3 hrs 33 mins // Lectures: 39 //',
-            //     link:
-            //     'https://www.udemy.com/the-complete-oracle-sql-course-beginner-to-advanced/' }];
-
-
+            const isExists = await this.repo.isUrlExists(course.url);
+            if(!isExists) {
+                const result = await this.repo.add(course);
+                console.log(result);
+            }
 
             resolve();
         });
@@ -97,13 +94,9 @@ module.exports = class LearnViral {
             const $textBox = $('.blog .text-box');
             $textBox.find('h2').remove();
             const description = htmlToText.fromString($textBox.html());
-            const couponLink = $('.coupon-code-link').attr('href');
-            const courses = {
-                title,
-                description,
-                link: couponLink
-            };
-            resolve(courses);
+            const couponUrl = $('.coupon-code-link').attr('href');
+            const course = courseHelper.create(title, description, couponUrl);
+            resolve(course);
         });
     }
 

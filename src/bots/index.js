@@ -2,12 +2,12 @@ const LearnViral = require('./LearnViral');
 const BrowserService = require('../services/BrowserService');
 
 module.exports = {
-    getBots() {
+    getBots(repo) {
         return new Promise((resolve, reject) => {
             const browser = new BrowserService();
             browser.open().then(() => {
                 const bots = [
-                    new LearnViral(browser)
+                    new LearnViral(repo, browser)
                 ];
                 resolve(bots);
             })
