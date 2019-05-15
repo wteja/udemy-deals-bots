@@ -1,4 +1,4 @@
 node_modules
-userdata/*
+npm-debug.log
 package-lock.json
 yarn.lock
