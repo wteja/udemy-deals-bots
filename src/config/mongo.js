@@ -6,7 +6,7 @@ const getMongoUrl = options => {
 
 const connect = (options, mediator) => {
     mediator.once('boot.ready', _ => {
-        const uri = getMongoUrl(options);
+        const uri = getMongoUrl(options);console.log(uri)
         mongo.connect(uri, {
             useNewUrlParser: true
         }).

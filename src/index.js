@@ -1,3 +1,4 @@
+require('dotenv').config()
 const { EventEmitter } = require('events');
 const botFactory = require('./bots')
 const config = require('./config')

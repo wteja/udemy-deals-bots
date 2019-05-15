@@ -1,4 +1,5 @@
 node_modules
 userdata/*
+.env*
 package-lock.json
 yarn.lock
