@@ -6,18 +6,25 @@ module.exports = class BrowserService {
     constructor() {
         this.browser = null;
     }
-    
+
     open() {
         return new Promise((resolve, reject) => {
-            puppeteer.launch({
-                headless: true,
-                userDataDir: path.resolve(__dirname, '..', '..', 'userdata')
-            })
-            .then(browser => {
-                this.browser = browser;
-                resolve(browser);
-            })
-            .catch(reject);
+            try {
+                let puppeteerOptions = {
+                    headless: true,
+                    userDataDir: path.resolve(__dirname, '..', '..', 'userdata'),
+                    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+                };
+
+                puppeteer.launch(puppeteerOptions)
+                    .then(browser => {
+                        this.browser = browser
+                        resolve(browser)
+                    })
+                    .catch(reject)
+            } catch (err) {
+                resolve(err)
+            }
         });
     }
 

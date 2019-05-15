@@ -12,6 +12,8 @@ mediator.on('db.ready', db => {
         .then(async repo => {
             bots = await botFactory.getBots(repo)
             bots.forEach(bot => bot.start())
+
+            console.log("Bots are runnings...")
         })
 })
 
