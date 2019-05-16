@@ -3,11 +3,8 @@ const randomUA = require('modern-random-ua');
 const path = require('path');
 
 module.exports = class BrowserService {
-    constructor() {
-        this.browser = null;
-    }
 
-    open() {
+    openBrowser() {
         return new Promise((resolve, reject) => {
             try {
                 let puppeteerOptions = {
@@ -18,7 +15,6 @@ module.exports = class BrowserService {
 
                 puppeteer.launch(puppeteerOptions)
                     .then(browser => {
-                        this.browser = browser
                         resolve(browser)
                     })
                     .catch(reject)
@@ -31,22 +27,18 @@ module.exports = class BrowserService {
     getHtml(url) {
         return new Promise(async (resolve, reject) => {
             try {
-                const page = await this.browser.newPage();
+                const browser = await this.openBrowser();
+                const page = await browser.newPage();
                 const userAgent = randomUA.generate();
                 await page.setUserAgent(userAgent);
                 await page.goto(url);
                 const html = await page.evaluate(() => document.body.innerHTML);
                 page.close();
+                browser.close();
                 resolve(html);
             } catch (error) {
                 reject(error);
             }
         });
-    }
-
-    close() {
-        if (this.browser) {
-            this.browser.close();
-        }
     }
 };

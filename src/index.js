@@ -3,7 +3,19 @@ const { EventEmitter } = require('events');
 const botFactory = require('./bots')
 const config = require('./config')
 const repository = require('./repository')
+const fs = require('fs')
+const path = require('path')
 const mediator = new EventEmitter()
+
+// Prepare directories
+const vitalDirs = [
+    path.resolve(__dirname, '..', 'temp'),
+    path.resolve(__dirname, '..', 'userdata')
+]
+vitalDirs.forEach(dirPath => {
+    if (!fs.existsSync(dirPath))
+        fs.mkdirSync(dirPath)
+})
 
 let bots = [];
 

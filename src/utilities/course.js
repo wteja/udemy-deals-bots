@@ -5,7 +5,7 @@ const create = (title, description, url, thumbnailUrl) => {
         description,
         url,
         thumbnailUrl,
-        successCount: 1,
+        successVote: [true],
         created_at: now,
         updated_at: now
     }

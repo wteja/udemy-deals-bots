@@ -5,8 +5,8 @@ const delay = time => {
 };
 
 const randomDelay = (min, max) => {
-    min = min || 5;
-    max = max || 10;
+    min = min || 3;
+    max = max || 5;
     if(min > max) {
         const temp = min;
         min = max;
@@ -16,7 +16,16 @@ const randomDelay = (min, max) => {
     return delay(time);
 }
 
+const eachDelay = (items, time, cb) => {
+    let seed = time;
+    items.forEach(item => {
+        setTimeout(cb, seed * 1000)
+        seed += time
+    })
+}
+
 module.exports = {
     delay,
-    randomDelay
+    randomDelay,
+    eachDelay
 };
