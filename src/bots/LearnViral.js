@@ -31,7 +31,7 @@ module.exports = class LearnViral {
                     const pageInfo = await this.getCourseListPageInfo(pageUrl)
                     const pageLinks = pageInfo.links.join('\n')
                     temp.appendFile(this.tempFileName, pageLinks + '\n')
-    
+
                     if (pageInfo.hasNextPage && (this.isFirstTime || (!this.isFirstTime && this.page < this.furtherPageLimit))) {
                         this.page++
                         await timer.randomDelay()
@@ -40,34 +40,29 @@ module.exports = class LearnViral {
 
                         await temp.reverseLines(this.tempFileName)
 
-                        let saveDelay = 0;
-
-                        temp.readLineByLine(this.tempFileName, link => {
-                            setTimeout(async () => {
-                                const course = await this.getCourseByLink(link)
-                                const isExists = await this.repo.isUrlExists(course.url)
-                                if (!isExists) {
-                                    await this.repo.add(course)
-                                }
-                            }, saveDelay * 1000)
-                            saveDelay += this.saveDelay
-                        }).then(async () => {
+                        temp.readLineByLine(this.tempFileName, async link => {
+                            const course = await this.getCourseByLink(link)
+                            const isExists = await this.repo.isUrlExists(course.url)
+                            if (!isExists) {
+                                await this.repo.add(course)
+                            }
+                        }, this.saveDelay).then(async () => {
                             console.log("Save all links successfully.");
                             console.log("Waiting for the new set.");
                             temp.deleteFile(this.tempFileName)
                             this.generateTempFileName()
                             this.isFirstTime = false; // Next time don't need to gather every pages.
                         })
-                        .catch(err => reject(err))
+                            .catch(err => reject(err))
 
-                        if(this.isFirstTime) {
+                        if (this.isFirstTime) {
                             await timer.delay(3600 * 24)
                         } else {
                             await timer.delay(3600 * 12)
                         }
                     }
                 }
-    
+
                 resolve()
             } catch (err) {
                 reject(err)

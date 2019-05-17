@@ -31,7 +31,7 @@ const deleteFile = fileName => {
     }
 }
 
-const readLineByLine = (fileName, cb) => {
+const readLineByLine = (fileName, cb, delayStep = 0) => {
     return new Promise((resolve, reject) => {
         try {
             const filePath = getFilePath(fileName)
@@ -40,8 +40,14 @@ const readLineByLine = (fileName, cb) => {
                     input: fs.createReadStream(filePath),
                     console: false
                 });
+
+                let delay = 0;
+
                 rl.on('line', line => {
-                    cb(line)
+                    setTimeout(() => {
+                        cb(line)
+                        delay += delayStep
+                    }, delay * 1000)
                 })
                 rl.on('close', () => {
                     resolve()

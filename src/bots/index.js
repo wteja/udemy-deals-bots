@@ -1,14 +1,16 @@
 const LearnViral = require('./LearnViral');
 const BrowserService = require('../services/BrowserService');
 
-function createBot(type, repo) {
-    return new type(repo, new BrowserService())
-}
-
 module.exports = {
     getBots(repo) {
-        return [
-            createBot(LearnViral, repo)
-        ]
+        return new Promise((resolve, reject) => {
+            const browser = new BrowserService()
+            browser.openBrowser().then(() => {
+                resolve([
+                    new LearnViral(repo, browser)
+                ])
+            })
+            .catch(reject)
+        })
     }
 };

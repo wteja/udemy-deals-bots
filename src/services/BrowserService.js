@@ -4,6 +4,10 @@ const path = require('path');
 
 module.exports = class BrowserService {
 
+    constructor() {
+        this.browser = null;
+    }
+
     openBrowser() {
         return new Promise((resolve, reject) => {
             try {
@@ -15,6 +19,7 @@ module.exports = class BrowserService {
 
                 puppeteer.launch(puppeteerOptions)
                     .then(browser => {
+                        this.browser = browser;
                         resolve(browser)
                     })
                     .catch(reject)
@@ -27,14 +32,12 @@ module.exports = class BrowserService {
     getHtml(url) {
         return new Promise(async (resolve, reject) => {
             try {
-                const browser = await this.openBrowser();
-                const page = await browser.newPage();
+                const page = await this.browser.newPage();
                 const userAgent = randomUA.generate();
                 await page.setUserAgent(userAgent);
-                await page.goto(url);
+                await page.goto(url, { timeout: 0, waitUntil: 'networkidle0' });
                 const html = await page.evaluate(() => document.body.innerHTML);
                 page.close();
-                browser.close();
                 resolve(html);
             } catch (error) {
                 reject(error);
