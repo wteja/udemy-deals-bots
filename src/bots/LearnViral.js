@@ -39,8 +39,6 @@ module.exports = class LearnViral {
                     const pageUrl = this.page > 1 ? this.baseUrl + `page/${this.page}/` : this.baseUrl
                     const pageInfo = await this.getCourseListPageInfo(pageUrl)
 
-                    console.log("Saving for page " + this.page)
-
                     await timer.randomDelay()
 
                     for (let i = 0, n = pageInfo.links.length; i < n; i++) {
@@ -55,11 +53,7 @@ module.exports = class LearnViral {
 
                     this.page--;
                     if (!pageInfo.hasPrevPage || this.page <= 0) {
-                        console.log("Save all links successfully.");
-                        console.log("Waiting for the new set.");
-
                         this.isRunOnce = false;
-
                         await timer.delay(this.delayNewSet)
                     } else {
                         await timer.randomDelay()
