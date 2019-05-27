@@ -13,60 +13,76 @@ module.exports = class LearnViral {
         this.page = 1
         this.working = true
         this.isFirstTime = true
+        this.isRunOnce = false;
         this.tempFileOriginalName = 'learnviral'
         this.generateTempFileName()
-        this.saveDelay = 5;
-        this.furtherPageLimit = 100
+        this.delayNewSet = 3600;
+        this.furtherPageLimit = 10;
     }
 
     start() {
         return new Promise(async (resolve, reject) => {
             try {
-                temp.clearFile(this.tempFileName)
 
                 while (this.working) {
-                    console.log("Saving for page " + this.page)
+
+                    if (!this.isRunOnce) {
+                        if(this.isFirstTime) {
+                            this.page = await this.getLastPageNumber();
+                            this.isFirstTime = false;
+                        } else {
+                            this.page = this.furtherPageLimit;
+                        }
+                        this.isRunOnce = true;
+                    }
 
                     const pageUrl = this.page > 1 ? this.baseUrl + `page/${this.page}/` : this.baseUrl
                     const pageInfo = await this.getCourseListPageInfo(pageUrl)
-                    const pageLinks = pageInfo.links.join('\n')
-                    temp.appendFile(this.tempFileName, pageLinks + '\n')
 
-                    if (pageInfo.hasNextPage && (this.isFirstTime || (!this.isFirstTime && this.page < this.furtherPageLimit))) {
-                        this.page++
-                        await timer.randomDelay()
-                    } else {
-                        this.page = 1
+                    console.log("Saving for page " + this.page)
 
-                        await temp.reverseLines(this.tempFileName)
+                    await timer.randomDelay()
 
-                        temp.readLineByLine(this.tempFileName, async link => {
-                            const course = await this.getCourseByLink(link)
-                            const isExists = await this.repo.isUrlExists(course.url)
-                            if (!isExists) {
-                                await this.repo.add(course)
-                            }
-                        }, this.saveDelay).then(async () => {
-                            console.log("Save all links successfully.");
-                            console.log("Waiting for the new set.");
-                            temp.deleteFile(this.tempFileName)
-                            this.generateTempFileName()
-                            this.isFirstTime = false; // Next time don't need to gather every pages.
-                        })
-                            .catch(err => reject(err))
+                    for (let i = 0, n = pageInfo.links.length; i < n; i++) {
+                        const course = await this.getCourseByLink(pageInfo.links[i]);
+                        const isExists = await this.repo.isUrlExists(course.url)
+                        if (!isExists) {
+                            await this.repo.add(course)
 
-                        if (this.isFirstTime) {
-                            await timer.delay(3600 * 24)
-                        } else {
-                            await timer.delay(3600 * 12)
+                            await timer.randomDelay()
                         }
                     }
+
+                    this.page--;
+                    if (!pageInfo.hasPrevPage || this.page <= 0) {
+                        console.log("Save all links successfully.");
+                        console.log("Waiting for the new set.");
+
+                        this.isRunOnce = false;
+
+                        await timer.delay(this.delayNewSet)
+                    } else {
+                        await timer.randomDelay()
+                    }
+
                 }
 
                 resolve()
             } catch (err) {
                 reject(err)
             }
+        })
+    }
+
+    getLastPageNumber() {
+        return new Promise(async (resolve, reject) => {
+            const html = await this.browser.getHtml(this.baseUrl)
+            const $ = cheerio.load(html)
+            const $content = $('#content')
+            const $activeContentBox = $content.find('.content-box:nth-child(2)')
+            const $nextPage = $activeContentBox.find('.paging .next')
+            const lastPageNumber = $nextPage.prev().text().replace(',', '');
+            resolve(lastPageNumber)
         })
     }
 
@@ -95,9 +111,11 @@ module.exports = class LearnViral {
             const $activeContentBox = $content.find('.content-box:nth-child(2)')
             const $couponCodeLinks = $activeContentBox.find('.entry-title a')
             const links = $couponCodeLinks.toArray().map(a => a.attribs.href)
+            const hasPrevPage = $activeContentBox.find('.paging .prev').length > 0
             const hasNextPage = $activeContentBox.find('.paging .next').length > 0
             const returns = {
                 links,
+                hasPrevPage,
                 hasNextPage
             }
             resolve(returns)
